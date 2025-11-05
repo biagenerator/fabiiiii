@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Um presentinho pra você</title>
+    <!-- Carrega o Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carrega as fontes do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Aplica as fontes personalizadas */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fancy-font {
+            font-family: 'Pacifico', cursive;
+            /* Sombra suave no texto do título */
+            text-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
+        }
+
+        /* Classes para a animação da caixa de mensagem.
+           Usamos isso em vez de 'hidden' para poder animar.
+        */
+        #message-area {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Animação suave */
+            opacity: 0;
+            transform: translateY(20px); /* Começa um pouco abaixo */
+            max-height: 0; /* Começa "fechada" */
+            overflow: hidden;
+            /* Removemos margem e padding aqui, pois serão aplicados pela classe 'show' */
+        }
+        #message-area.show {
+            opacity: 1;
+            transform: translateY(0); /* Volta à posição normal */
+            max-height: 500px; /* Altura máxima para a animação "abrir" */
+            margin-top: 2.5rem; /* O 'mt-10' original */
+            padding: 1.5rem; /* O 'p-6' original */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-200 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Cartão Principal -->
+    <!-- Adicionado um leve brilho rosa com 'shadow-pink-500/10' -->
+    <div class="bg-gray-800/90 backdrop-blur-sm shadow-2xl shadow-pink-500/10 rounded-2xl max-w-md w-full p-6 md:p-10 mx-auto border-t-4 border-pink-500">
+        
+        <!-- Título Carinhoso -->
+        <h1 class="fancy-font text-center text-4xl md:text-5xl text-pink-400">
+            Para minha princesa...
+        </h1>
+
+        <!-- Subtítulo / Pergunta -->
+        <p class="text-center text-lg text-gray-300 mt-6">
+            Como você tá se sentindo hoje?
+        </p>
+
+        <!-- Container dos Botões -->
+        <div class="flex flex-col gap-4 mt-10">
+            <button onclick="showMessage('triste')" 
+                    class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-pink-500/20 hover:shadow-xl">
+                Meio triste
+            </button>
+            
+            <button onclick="showMessage('estressada')" 
+                    class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-pink-500/20 hover:shadow-xl">
+                Estressada (de novo)
+            </button>
+
+            <button onclick="showMessage('brava')" 
+                    class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-pink-500/20 hover:shadow-xl">
+                Brava! 😡
+            </button>
+            
+            <button onclick="showMessage('gentil')" 
+                    class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-pink-500/20 hover:shadow-xl">
+                Meio boba / Gentil
+            </button>
+            
+            <button onclick="showMessage('saudade')" 
+                    class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-pink-500/20 hover:shadow-xl">
+                Com saudades de você...
+            </button>
+
+            <button onclick="showMessage('olhos')" 
+                    class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-pink-500/20 hover:shadow-xl">
+                Sendo a dona dos olhos mais lindos do mundo
+            </button>
+        </div>
+
+        <!-- Área da Mensagem (Agora controlada pela classe 'show') -->
+        <!-- Removemos as classes de 'mt-10', 'p-6' e 'hidden' daqui -->
+        <div id="message-area" class="bg-gray-700 rounded-lg shadow-inner">
+            <p id="message-content" class="text-center text-lg leading-relaxed"></p>
+        </div>
+
+    </div>
+
+    <!-- Script da Lógica -->
+    <script>
+        // Puxamos os elementos para fora da função para melhor performance
+        const messageArea = document.getElementById('message-area');
+        const messageContent = document.getElementById('message-content');
+        let currentFeeling = null; // Variável para guardar o estado atual
+
+        function showMessage(feeling) {
+            
+            // 1. Se clicar no mesmo botão que já está ativo, esconde a caixa
+            if (feeling === currentFeeling && messageArea.classList.contains('show')) {
+                messageArea.classList.remove('show');
+                currentFeeling = null; // Reseta o estado
+                return; // Para a execução
+            }
+
+            // Se for um botão diferente, define o conteúdo
+            let htmlContent = '';
+
+            switch (feeling) {
+                case 'triste':
+                    htmlContent = `
+                        Não gosto de te ver assim. <br><br>
+                        Já que eu não posso te dar um abraço agora, talvez isso ajude a mudar sua trilha sonora: <br><br>
+                        <a href="https://www.youtube.com/watch?v=bwAK5jcfGrA" target="_blank" class="text-pink-400 font-bold hover:underline">
+                            Zezé Di Camargo - É o Amor
+                        </a>
+                        <br><br> (Espero que te faça rir, nem que seja de mim kkk)
+                    `;
+                    break;
+                
+                case 'estressada':
+                    htmlContent = `
+                        Calma, senhora estressada! <br><br>
+                        Respira fundo. O mundo não merece tanta energia sua gasta à toa. 
+                        Guarda essa energia pra... sei lá, rir das minhas piadas.
+                        <br><br>
+                        (Mas falando sério, relaxa um pouco. Você merece.)
+                    `;
+                    break;
+
+                case 'brava':
+                    htmlContent = `
+                        Ih, tá brava? <br><br>
+                        Aposto que mesmo assim esses olhos continuam sendo os mais lindos do mundo.
+                        <br><br>
+                        Tenta não quebrar nada, por favor. Bebe uma água e lembra que tem gente (tipo eu) que gosta muito de você.
+                    `;
+                    break;
+
+                case 'gentil':
+                    htmlContent = `
+                        Esse é o meu humor preferido seu! <br><br>
+                        O mundo fica mais leve e bonito quando você tá assim. 
+                        Continua, por favor! :)
+                    `;
+                    break;
+
+                case 'saudade':
+                    htmlContent = `
+                        Ah, que bom! <br><br>
+                        Porque eu também tô com saudades de você. (Sério.)
+                    `;
+                    break;
+
+                case 'olhos':
+                    htmlContent = `
+                        Isso não é um sentimento, é um fato. <br><br>
+                        Deve ser um fardo pesado carregar os olhos mais lindos que eu já vi no mundo. 
+                        <br><br>
+                        Obrigado por me deixar olhar pra eles de vez em quando.
+                    `;
+                    break;
+            }
+
+            // 2. Animação de troca:
+            // Se a caixa JÁ ESTIVER visível (mostrando outra msg)
+            if (messageArea.classList.contains('show')) {
+                // Primeiro, esconde a caixa atual
+                messageArea.classList.remove('show');
+                
+                // Espera a animação de "esconder" (400ms) terminar
+                // E SÓ ENTÃO mostra o conteúdo novo
+                setTimeout(() => {
+                    messageContent.innerHTML = htmlContent;
+                    messageArea.classList.add('show'); // Mostra a caixa com o novo conteúdo
+                    currentFeeling = feeling; // Atualiza o estado
+                    // Rola a página para que a mensagem fique visível
+                    messageArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }, 400); // Este tempo DEVE ser igual ao da transição no CSS
+            } else {
+                // 3. Se a caixa estiver oculta, apenas mostra
+                messageContent.innerHTML = htmlContent;
+                messageArea.classList.add('show');
+                currentFeeling = feeling; // Atualiza o estado
+                // Rola a página para que a mensagem fique visível
+                messageArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+        }
+    </script>
+
+</body>
+</html>
